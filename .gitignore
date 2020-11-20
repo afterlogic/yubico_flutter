@@ -6,3 +6,6 @@
 .idea/
 build/
 *.iml
+example/lib/auth_data.dart
+*.jks
+example_request/

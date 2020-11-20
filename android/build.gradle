@@ -40,5 +40,6 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation fileTree(include: ['*.jar', '*.aar'], dir: '../android_artifacts')
+    implementation 'com.google.android.gms:play-services-fido:18.1.0'
+    implementation 'net.sf.ingenias:common-codec:1.3'
 }

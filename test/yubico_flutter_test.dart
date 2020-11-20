@@ -18,6 +18,6 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    expect(await YubicoFlutter.platformVersion, '42');
+
   });
 }

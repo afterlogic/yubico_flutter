@@ -1,36 +1,344 @@
 package com.afterlogic.yubico_flutter
 
+import android.app.Activity
+import android.app.Activity.RESULT_CANCELED
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import androidx.annotation.NonNull
-
+import com.google.android.gms.common.util.Base64Utils
+import com.google.android.gms.fido.Fido
+import com.google.android.gms.fido.fido2.api.common.*
+import com.google.android.gms.tasks.Tasks
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
+import io.flutter.plugin.common.PluginRegistry
+import java.util.concurrent.Callable
+import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+
 
 /** YubicoFlutterPlugin */
-class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler {
-    /// The MethodChannel that will the communication between Flutter and native Android
-    ///
-    /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-    /// when the Flutter Engine is detached from the Activity
+class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
     private lateinit var channel: MethodChannel
+    private var activity: Activity? = null
+    private var callback: ((MutableMap<String, Any>?, PluginError?) -> Unit)? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "yubico_flutter")
         channel.setMethodCallHandler(this)
     }
 
-    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        } else {
-            result.notImplemented()
-        }
-    }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
     }
+
+    override fun onDetachedFromActivity() {
+        activity = null
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        activity = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        binding.addActivityResultListener(this)
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        binding.addActivityResultListener(this)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        if ((requestCode == REQUEST_CODE_SIGN || requestCode == REQUEST_CODE_REGISTER) && data != null) {
+            when (resultCode) {
+                RESULT_OK -> {
+                    when {
+                        data.hasExtra(Fido.FIDO2_KEY_ERROR_EXTRA) -> {
+                            val error = data.getByteArrayExtra(Fido.FIDO2_KEY_ERROR_EXTRA)
+                                    ?: return false
+                            val response = AuthenticatorErrorResponse.deserializeFromBytes(error)
+                            mapError(response)
+                        }
+                        requestCode == REQUEST_CODE_SIGN -> {
+                            val bytes = data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)
+                            val response = AuthenticatorAssertionResponse.deserializeFromBytes(bytes)
+                            mapAuthResponse(response)
+                        }
+                        requestCode == REQUEST_CODE_REGISTER -> {
+                            val bytes = data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)
+                            val response = AuthenticatorAttestationResponse.deserializeFromBytes(bytes)
+                            maRegisterResponse(response)
+                        }
+                    }
+                    return true
+                }
+                RESULT_CANCELED -> {
+                    callback?.invoke(null, PluginError(ErrorCase.Canceled))
+                }
+                else -> {
+                    callback?.invoke(null, PluginError(ErrorCase.InvalidResult, resultCode.toString()))
+                }
+            }
+        }
+        return false
+    }
+
+    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+        try {
+            when (call.method) {
+                "authRequest" -> {
+                    val map = ((call.arguments as? List<*>)?.firstOrNull() as? Map<*, *>)
+                            ?: return result.notImplemented()
+
+                    return authRequest(
+                            (map["timeout"] as? Number)?.toDouble(),
+                            map["challenge"] as String,
+                            map["requestId"] as? String,
+                            map["rpId"] as String,
+                            map["credentials"] as List<String>
+                    ) { response, error ->
+                        if (error != null) {
+                            return@authRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
+                        }
+                        if (response == null) {
+                            return@authRequest result.error(ErrorCase.EmptyResponse.ordinal.toString(), "", "")
+                        }
+                        return@authRequest result.success(response)
+                    }
+                }
+                "registrationRequest" -> {
+                    val map = ((call.arguments as? List<*>)?.firstOrNull() as? Map<*, *>)
+                            ?: return result.notImplemented()
+                    Tasks.call(
+                            THREAD_POOL_EXECUTOR,
+                            Callable<PublicKeyCredentialCreationOptions?> {
+                                registrationRequest(
+                                        (map["timeout"] as? Number)?.toDouble(),
+                                        map["challenge"] as String,
+                                        map["requestId"] as? String,
+                                        map["rpId"] as String,
+                                        map["rpName"] as String,
+                                        map["userId"] as String,
+                                        map["name"] as String,
+                                        map["displayName"] as String,
+                                        map["pubKeyCredParams"] as? List<Map<String, Any>>
+                                ) { response, error ->
+                                    if (error != null) {
+                                        return@registrationRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
+                                    }
+                                    if (response == null) {
+                                        try {
+                                            return@registrationRequest result.error(ErrorCase.EmptyResponse.ordinal.toString(), "", "")
+                                        } catch (e: Throwable) {
+                                            print(e)
+                                        }
+                                    }
+                                    return@registrationRequest result.success(response)
+                                }
+                                return@Callable null
+                            })
+                }
+                else -> {
+                    result.notImplemented()
+                }
+            }
+        } catch (e: Throwable) {
+            return result.error(
+                    ErrorCase.MapError.ordinal.toString(),
+                    e.message ?: "",
+                    e.toString()
+            )
+        }
+    }
+
+    private fun registrationRequest(
+            timeout: Double?,
+            challenge: String,
+            requestId: String?,
+            rpId: String,
+            rpName: String,
+            userId: String,
+            name: String,
+            displayName: String,
+            pubKeyCredParams: List<Map<String, Any>>? = null,
+            callback: (MutableMap<String, Any>?, PluginError?) -> Unit
+    ) {
+
+        try {
+            if (this.callback != null) {
+                try {
+                    this.callback?.invoke(null, null)
+                } catch (e: Throwable) {
+                    print(e)
+                }
+                this.callback = null
+            }
+            val activity = activity ?: return callback(null, null)
+            val fido2ApiClient = Fido.getFido2ApiClient(activity.applicationContext)
+
+            val builder = PublicKeyCredentialCreationOptions.Builder()
+            builder.setChallenge(Base64Utils.decode(challenge))//+
+
+            val entity = PublicKeyCredentialRpEntity(rpId, rpName, null)//may replace rp name to rpId
+            builder.setRp(entity)//-
+
+            val userEntity = PublicKeyCredentialUserEntity(
+                    userId.toByteArray() /* id */,
+                    name /* name */,
+                    null,
+                    displayName)
+            builder.setUser(userEntity)//+-
+
+
+            // Parse parameters
+            val parameters: MutableList<PublicKeyCredentialParameters> = java.util.ArrayList()
+            if (pubKeyCredParams != null) {
+                for (item in pubKeyCredParams) {
+                    val type = item["type"] as String
+                    val alg = item["alg"] as Int
+                    val parameter = PublicKeyCredentialParameters(type, alg)
+                    parameters.add(parameter)
+                }
+            }
+            builder.setParameters(parameters)//+-
+
+
+            builder.setTimeoutSeconds(timeout)//-
+
+            // Parse exclude list
+            val descriptors: List<PublicKeyCredentialDescriptor> = emptyList()
+            builder.setExcludeList(descriptors)//+
+
+            val criteria = AuthenticatorSelectionCriteria.Builder()
+//            criteria.setAttachment()
+            builder.setAuthenticatorSelection(criteria.build())//+
+
+            val result = fido2ApiClient.getRegisterIntent(builder.build())
+            result.addOnSuccessListener {
+                if (it.hasPendingIntent()) {
+                    try {
+                        this.callback = { map, error ->
+                            if (map != null && requestId != null) {
+                                map["id"] = requestId
+                            }
+                            callback.invoke(map, error)
+                        }
+                        it.launchPendingIntent(activity, REQUEST_CODE_REGISTER)
+                    } catch (e: Throwable) {
+                        callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
+                    }
+                }
+            }
+        } catch (e: Throwable) {
+            callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
+        }
+    }
+
+    private fun authRequest(
+            timeout: Double?,
+            challenge: String,
+            requestId: String?,
+            rpId: String,
+            credentials: List<String>,
+            callback: (MutableMap<String, Any>?, PluginError?) -> Unit
+    ) {
+
+        try {
+            if (this.callback != null) {
+                this.callback?.invoke(null, null)
+            }
+            this.callback = null
+            val activity = activity ?: return callback(null, null)
+            val fido2ApiClient = Fido.getFido2ApiClient(activity.applicationContext)
+            val builder = PublicKeyCredentialRequestOptions.Builder()
+            builder.setChallenge(Base64Utils.decode(challenge))
+            if (timeout != null) {
+                builder.setTimeoutSeconds(timeout)
+            }
+            builder.setRpId(rpId)
+            val descriptors = ArrayList<PublicKeyCredentialDescriptor>()
+            for (allowedKey in credentials) {
+                val publicKeyCredentialDescriptor = PublicKeyCredentialDescriptor(
+                        PublicKeyCredentialType.PUBLIC_KEY.toString(),
+                        Base64Utils.decode(allowedKey),
+                        null)
+                descriptors.add(publicKeyCredentialDescriptor)
+            }
+            builder.setAllowList(descriptors)
+            val result = fido2ApiClient.getSignIntent(builder.build())
+            result.addOnSuccessListener {
+                if (it.hasPendingIntent()) {
+                    try {
+                        this.callback = { map, error ->
+                            if (map != null && requestId != null) {
+                                map["id"] = requestId
+                            }
+                            callback.invoke(map, error)
+                        }
+                        it.launchPendingIntent(activity, REQUEST_CODE_SIGN)
+                    } catch (e: Throwable) {
+                        callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
+                    }
+                }
+            }
+        } catch (e: Throwable) {
+            callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
+        }
+    }
+
+    private fun mapError(error: AuthenticatorErrorResponse) {
+        this.callback?.invoke(
+                null,
+                PluginError(ErrorCase.ErrorResponse, error.errorMessage ?: "", null)
+        )
+    }
+
+    private fun maRegisterResponse(response: AuthenticatorAttestationResponse) {
+        val clientDataJSON = String(response.clientDataJSON, Charsets.UTF_8)
+        val attestationObject: String = Base64Utils.encode(response.attestationObject)
+
+        val map = mutableMapOf<String, Any>(
+                "clientDataJSON" to clientDataJSON,
+                "attestationObject" to attestationObject
+        )
+        this.callback?.invoke(map, null)
+    }
+
+    private fun mapAuthResponse(response: AuthenticatorAssertionResponse) {
+        val clientDataJSON = String(response.clientDataJSON, Charsets.UTF_8)
+        val authenticatorData: String = Base64Utils.encode(response.authenticatorData)
+        val credentialId: String = Base64Utils.encode(response.keyHandle)
+        val signature: String = Base64Utils.encode(response.signature)
+
+        val map = mutableMapOf<String, Any>(
+                "authenticatorData" to authenticatorData,
+                "clientDataJSON" to clientDataJSON,
+                "credentialId" to credentialId,
+                "signature" to signature
+        )
+        this.callback?.invoke(map, null)
+    }
+
+    companion object {
+        const val REQUEST_CODE_SIGN = 129
+        const val REQUEST_CODE_REGISTER = 130
+        private val NUM_CORES = Runtime.getRuntime().availableProcessors()
+        private val THREAD_POOL_EXECUTOR = ThreadPoolExecutor(
+                NUM_CORES * 2, NUM_CORES * 2, 60L, TimeUnit.SECONDS, LinkedBlockingDeque())
+    }
 }
+
+enum class ErrorCase {
+    RequestFailed, EmptyResponse, Canceled, InvalidResult, ErrorResponse, MapError,
+}
+
+class PluginError(var errorCase: ErrorCase, var message: String = "", var error: Throwable? = null)
