@@ -20,6 +20,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    YubicoFlutter.instance.startSession();
   }
 
   @override
@@ -31,28 +32,28 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Center(
             child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FlatButton(
-              child: Text("registration"),
-              onPressed: request,
-            ),
-            FlatButton(
-              child: Text("auth"),
-              onPressed: () {},
-            ),
-          ],
-        )),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FlatButton(
+                  child: Text("registration"),
+                  onPressed: registerRequest,
+                ),
+                FlatButton(
+                  child: Text("auth"),
+                  onPressed: authRequest,
+                ),
+              ],
+            )),
       ),
     );
   }
 
-  request() async {
-    final response = await post(
+  registerRequest() async {
+    final response1 = await post(
       "https://test.afterlogic.com/?/Api/",
       headers: {
         "Authorization":
-            "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
+        "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
       },
       body: {
         "Module": "TwoFactorAuth",
@@ -60,9 +61,10 @@ class _MyAppState extends State<MyApp> {
         "Parameters": jsonEncode({"Password": "p12345q"}),
       },
     );
-    final map = jsonDecode(response.body)["Result"]["publicKey"];
+    final map = jsonDecode(response1.body)["Result"]["publicKey"];
     print(map);
-    YubicoFlutter.registrationRequest(
+    final keyResponse=await YubicoFlutter.instance.registrationRequest(
+      "https://test.afterlogic.com",
       (map["timeout"] as num).toDouble(),
       map["challenge"],
       null,
@@ -73,5 +75,48 @@ class _MyAppState extends State<MyApp> {
       map["user"]["displayName"],
       (map["pubKeyCredParams"] as List).cast(),
     );
+    final response2 = await post(
+      "https://test.afterlogic.com/?/Api/",
+      headers: {
+        "Authorization":
+        "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
+      },
+      body: {
+        "Module": "TwoFactorAuth",
+        "Method": "RegisterSecurityKeyAuthenticatorFinish",
+        "Parameters": jsonEncode({"Password": "p12345q","Attestation":keyResponse["attestation"]}),
+      },
+    );
+    print(jsonDecode(response2.body));
+  }
+
+  authRequest() async {
+    final response1 = await post(
+      "https://test.afterlogic.com/?/Api/",
+      body: {
+        "Module": "TwoFactorAuth",
+        "Method": "VerifySecurityKeyBegin",
+        "Parameters": jsonEncode({"Login":"n.yakovlev@afterlogic.com","Password":"p12345q"}),
+      },
+    );
+    final map = jsonDecode(response1.body)["Result"]["publicKey"];
+    print(map);
+    final keyResponse=await YubicoFlutter.instance.authRequest(
+      "https://test.afterlogic.com",
+      (map["timeout"] as num).toDouble(),
+      map["challenge"],
+      null,
+      map["rpId"],
+      (map["allowCredentials"] as List).map((e)=>e["id"] as String).toList(),
+    );
+    final response2 = await post(
+      "https://test.afterlogic.com/?/Api/",
+      body: {
+        "Module": "TwoFactorAuth",
+        "Method": "VerifySecurityKeyFinish",
+        "Parameters": jsonEncode({"Login":"n.yakovlev@afterlogic.com","Password":"p12345q","Attestation":keyResponse["attestation"]}),
+      },
+    );
+    print(jsonDecode(response2.body));
   }
 }
