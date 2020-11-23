@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 class YubicoFlutter {
   static final instance = YubicoFlutter._();
   static const MethodChannel _channel = const MethodChannel('yubico_flutter');
+  KeyState keyState;
 
   // ignore: close_sinks
   final _ctrl = StreamController.broadcast();
@@ -20,8 +21,9 @@ class YubicoFlutter {
   Future _methodCallHandler(MethodCall call) async {
     switch (call.method) {
       case "stateChange":
-        final state = call.arguments as int;
-        _ctrl.add(_toKeyState(state));
+        final state = _toKeyState(call.arguments as int);
+        keyState = state;
+        _ctrl.add(keyState);
     }
   }
 
