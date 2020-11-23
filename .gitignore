@@ -33,6 +33,7 @@ example_request/
 
 # Flutter/Dart/Pub related
 **/doc/api/
+**/ios/Pods/
 **/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins

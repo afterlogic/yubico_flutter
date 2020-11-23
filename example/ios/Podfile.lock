@@ -1,0 +1,34 @@
+PODS:
+  - Flutter (1.0.0)
+  - yubico_flutter (0.0.1):
+    - Flutter
+    - YubiKit
+  - YubiKit (3.1.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - yubico_flutter (from `.symlinks/plugins/yubico_flutter/ios`)
+  - YubiKit (from `https://github.com/Yubico/yubikit-ios.git`, commit `89fac6206a4c44eed84764a7f9528ba936d13693`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  yubico_flutter:
+    :path: ".symlinks/plugins/yubico_flutter/ios"
+  YubiKit:
+    :commit: 89fac6206a4c44eed84764a7f9528ba936d13693
+    :git: https://github.com/Yubico/yubikit-ios.git
+
+CHECKOUT OPTIONS:
+  YubiKit:
+    :commit: 89fac6206a4c44eed84764a7f9528ba936d13693
+    :git: https://github.com/Yubico/yubikit-ios.git
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  yubico_flutter: 3fee5838c73d3946031a1405ef347de018bbd944
+  YubiKit: b9f3b240e75feec0cf81a8ade503c072eea6dc3a
+
+PODFILE CHECKSUM: 930d4646d15e5401af0938a812855198aea4cd2c
+
+COCOAPODS: 1.9.3
