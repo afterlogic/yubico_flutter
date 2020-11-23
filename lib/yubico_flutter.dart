@@ -32,7 +32,7 @@ class YubicoFlutter {
   }
 
   Future authRequest(
-      String domainUrl,
+    String domainUrl,
     double timeout,
     String challenge,
     String requestId,
@@ -44,7 +44,7 @@ class YubicoFlutter {
       final map = await _channel.invokeMapMethod("authRequest", [
         {
           "timeout": timeout,
-          "domainUrl":domainUrl,
+          "domainUrl": domainUrl,
           "challenge": challenge,
           "requestId": requestId,
           "rpId": rpId,
@@ -55,13 +55,16 @@ class YubicoFlutter {
       print(map);
       return map;
     } catch (e) {
+      if(e is PlatformException){
+
+      }
       print(e);
     }
   }
 
   Future<Map> registrationRequest(
-      String domainUrl,
-      double timeout,
+    String domainUrl,
+    double timeout,
     String challenge,
     String requestId,
     String rpId,
@@ -90,6 +93,9 @@ class YubicoFlutter {
       print(map);
       return map;
     } catch (e) {
+      if(e is PlatformException){
+
+      }
       print(e);
     }
   }
@@ -109,4 +115,11 @@ class KeyState {
   /// The session is in an intermediary state between closed and opened. The application should not send commands
   /// to the key when the session is in this state.
   static const opening = 3;
+}
+
+enum IOSError {
+  Undefined,
+  EmptyResult,
+  NotAttached,
+  NfcNotSupported,
 }
