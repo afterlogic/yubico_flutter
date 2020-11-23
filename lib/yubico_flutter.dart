@@ -4,23 +4,31 @@ import 'package:flutter/services.dart';
 
 class YubicoFlutter {
   static final instance = YubicoFlutter._();
-
   static const MethodChannel _channel = const MethodChannel('yubico_flutter');
 
-  YubicoFlutter._() {
-    _channel.setMethodCallHandler(_methodCallHandler);
-  }
+  // ignore: close_sinks
+  final _ctrl = StreamController.broadcast();
 
-  Future _methodCallHandler(MethodCall call) {
-    switch (call.method) {
-      case "stateChange":
-        final state = call.arguments as int;
-        print(state);
+  Stream<KeyState> get onState => _ctrl.stream;
+
+  YubicoFlutter._() {
+    if (Platform.isIOS) {
+      _channel.setMethodCallHandler(_methodCallHandler);
     }
   }
 
-  Future startSession() {
-    return _channel.invokeMethod("startSession");
+  Future _methodCallHandler(MethodCall call) async {
+    switch (call.method) {
+      case "stateChange":
+        final state = call.arguments as int;
+        _ctrl.add(_toKeyState(state));
+    }
+  }
+
+  Future startSession() async {
+    if (Platform.isIOS) {
+      return _channel.invokeMethod("startSession");
+    }
   }
 
   Future<bool> supportNcf() {
@@ -55,9 +63,7 @@ class YubicoFlutter {
       print(map);
       return map;
     } catch (e) {
-      if(e is PlatformException){
-
-      }
+      if (e is PlatformException) {}
       print(e);
     }
   }
@@ -72,7 +78,8 @@ class YubicoFlutter {
     String userId,
     String name,
     String displayName,
-    List<Map<String, dynamic>> pubKeyCredParams, {
+    List<Map<String, dynamic>> pubKeyCredParams,
+    List<Map<String, dynamic>> allowCredentials, {
     bool nfc = false,
   }) async {
     try {
@@ -87,34 +94,54 @@ class YubicoFlutter {
           "name": name,
           "displayName": displayName,
           "pubKeyCredParams": pubKeyCredParams,
+          "allowCredentials": allowCredentials,
           "nfc": nfc,
         }
       ]);
       print(map);
       return map;
     } catch (e) {
-      if(e is PlatformException){
-
-      }
+      if (e is PlatformException) {}
       print(e);
     }
   }
 }
 
-class KeyState {
+KeyState _toKeyState(int code) {
+  switch (code) {
+    case 0:
+      return KeyState.CLOSED;
+
+    case 1:
+      return KeyState.OPEN;
+
+    case 2:
+      return KeyState.CLOSING;
+
+    case 3:
+      return KeyState.OPENING;
+  }
+  return null;
+}
+
+enum KeyState {
   /// The session is closed. No commands can be sent to the key.
-  static const closed = 0;
+  /// 0
+  CLOSED,
 
   /// The session is opened and ready to use. The application can send immediately commands to the key.
-  static const open = 1;
+  /// 1
+  OPEN,
 
   /// The session is in an intermediary state between opened and closed. The application should not send commands
   /// to the key when the session is in this state.
-  static const closing = 2;
+  /// 2
+  CLOSING,
 
   /// The session is in an intermediary state between closed and opened. The application should not send commands
   /// to the key when the session is in this state.
-  static const opening = 3;
+  /// 3
+  OPENING,
 }
 
 enum IOSError {

@@ -21,6 +21,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     YubicoFlutter.instance.startSession();
+    test();
   }
 
   @override
@@ -32,20 +33,26 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Center(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FlatButton(
-                  child: Text("registration"),
-                  onPressed: registerRequest,
-                ),
-                FlatButton(
-                  child: Text("auth"),
-                  onPressed: authRequest,
-                ),
-              ],
-            )),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlatButton(
+              child: Text("registration"),
+              onPressed: registerRequest,
+            ),
+            FlatButton(
+              child: Text("auth"),
+              onPressed: authRequest,
+            ),
+          ],
+        )),
       ),
     );
+  }
+
+  test() async {
+    final response =
+        await get("https://test.afterlogic.com/.well-known/assetlinks.json");
+    print(response.body);
   }
 
   registerRequest() async {
@@ -53,7 +60,7 @@ class _MyAppState extends State<MyApp> {
       "https://test.afterlogic.com/?/Api/",
       headers: {
         "Authorization":
-        "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
+            "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
       },
       body: {
         "Module": "TwoFactorAuth",
@@ -63,7 +70,7 @@ class _MyAppState extends State<MyApp> {
     );
     final map = jsonDecode(response1.body)["Result"]["publicKey"];
     print(map);
-    final keyResponse=await YubicoFlutter.instance.registrationRequest(
+    final keyResponse = await YubicoFlutter.instance.registrationRequest(
       "https://test.afterlogic.com",
       (map["timeout"] as num).toDouble(),
       map["challenge"],
@@ -74,17 +81,19 @@ class _MyAppState extends State<MyApp> {
       map["user"]["name"],
       map["user"]["displayName"],
       (map["pubKeyCredParams"] as List).cast(),
+      (map["allowCredentials"] as List).cast(),
     );
     final response2 = await post(
       "https://test.afterlogic.com/?/Api/",
       headers: {
         "Authorization":
-        "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
+            "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
       },
       body: {
         "Module": "TwoFactorAuth",
         "Method": "RegisterSecurityKeyAuthenticatorFinish",
-        "Parameters": jsonEncode({"Password": "p12345q","Attestation":keyResponse["attestation"]}),
+        "Parameters": jsonEncode(
+            {"Password": "p12345q", "Attestation": keyResponse["attestation"]}),
       },
     );
     print(jsonDecode(response2.body));
@@ -96,25 +105,30 @@ class _MyAppState extends State<MyApp> {
       body: {
         "Module": "TwoFactorAuth",
         "Method": "VerifySecurityKeyBegin",
-        "Parameters": jsonEncode({"Login":"n.yakovlev@afterlogic.com","Password":"p12345q"}),
+        "Parameters": jsonEncode(
+            {"Login": "n.yakovlev@afterlogic.com", "Password": "p12345q"}),
       },
     );
     final map = jsonDecode(response1.body)["Result"]["publicKey"];
     print(map);
-    final keyResponse=await YubicoFlutter.instance.authRequest(
+    final keyResponse = await YubicoFlutter.instance.authRequest(
       "https://test.afterlogic.com",
       (map["timeout"] as num).toDouble(),
       map["challenge"],
       null,
       map["rpId"],
-      (map["allowCredentials"] as List).map((e)=>e["id"] as String).toList(),
+      (map["allowCredentials"] as List).map((e) => e["id"] as String).toList(),
     );
     final response2 = await post(
       "https://test.afterlogic.com/?/Api/",
       body: {
         "Module": "TwoFactorAuth",
         "Method": "VerifySecurityKeyFinish",
-        "Parameters": jsonEncode({"Login":"n.yakovlev@afterlogic.com","Password":"p12345q","Attestation":keyResponse["attestation"]}),
+        "Parameters": jsonEncode({
+          "Login": "n.yakovlev@afterlogic.com",
+          "Password": "p12345q",
+          "Attestation": keyResponse["attestation"]
+        }),
       },
     );
     print(jsonDecode(response2.body));

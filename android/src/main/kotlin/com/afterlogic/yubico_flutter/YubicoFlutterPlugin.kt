@@ -17,6 +17,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
+import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.util.concurrent.Callable
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ThreadPoolExecutor
@@ -28,7 +29,6 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
     private lateinit var channel: MethodChannel
     private var activity: Activity? = null
     private var callback: ((MutableMap<String, Any>?, PluginError?) -> Unit)? = null
-
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "yubico_flutter")
         channel.setMethodCallHandler(this)
@@ -130,7 +130,8 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                                         map["userId"] as String,
                                         map["name"] as String,
                                         map["displayName"] as String,
-                                        map["pubKeyCredParams"] as? List<Map<String, Any>>
+                                        map["pubKeyCredParams"] as? List<Map<String, Any>>,
+                                        map["allowCredentials"] as? List<Map<String, Any>>
                                 ) { response, error ->
                                     if (error != null) {
                                         return@registrationRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
@@ -170,6 +171,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             name: String,
             displayName: String,
             pubKeyCredParams: List<Map<String, Any>>? = null,
+            allowCredentials: List<Map<String, Any>>? = null,
             callback: (MutableMap<String, Any>?, PluginError?) -> Unit
     ) {
 
@@ -188,12 +190,12 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             val builder = PublicKeyCredentialCreationOptions.Builder()
             builder.setChallenge(Base64Utils.decode(challenge))//+
 
-            val entity = PublicKeyCredentialRpEntity(rpId, rpName, null)//may replace rp name to rpId
+            val entity = PublicKeyCredentialRpEntity(rpId, rpName, null)
             builder.setRp(entity)//-
 
             val userEntity = PublicKeyCredentialUserEntity(
-                    userId.toByteArray() /* id */,
-                    name /* name */,
+                    displayName.toByteArray() /* id */,
+                    displayName /* name */,
                     null,
                     displayName)
             builder.setUser(userEntity)//+-
@@ -215,8 +217,18 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             builder.setTimeoutSeconds(timeout)//-
 
             // Parse exclude list
-            val descriptors: List<PublicKeyCredentialDescriptor> = emptyList()
-            builder.setExcludeList(descriptors)//+
+            val descriptors: MutableList<PublicKeyCredentialDescriptor> = java.util.ArrayList()
+            if (allowCredentials != null) {
+                for (item in allowCredentials) {
+                    val id = item["id"] as? String
+                    val type = item["type"] as? String
+                    if (type == "public-key" && id != null) {
+                        val descriptor = PublicKeyCredentialDescriptor(type, Base64Utils.decode(id), null)
+                        descriptors.add(descriptor)
+                    }
+                }
+            }
+            builder.setExcludeList(descriptors)
 
             val criteria = AuthenticatorSelectionCriteria.Builder()
 //            criteria.setAttachment()
@@ -224,19 +236,24 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
 
             val result = fido2ApiClient.getRegisterIntent(builder.build())
             result.addOnSuccessListener {
-                if (it.hasPendingIntent()) {
-                    try {
-                        this.callback = { map, error ->
-                            if (map != null && requestId != null) {
-                                map["id"] = requestId
-                            }
-                            callback.invoke(map, error)
-                        }
-                        it.launchPendingIntent(activity, REQUEST_CODE_REGISTER)
-                    } catch (e: Throwable) {
-                        callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
+                this.callback = { map, error ->
+                    if (map != null && requestId != null) {
+                        map["id"] = requestId
                     }
+                    callback.invoke(map, error)
                 }
+                it.launchPendingIntent(activity, REQUEST_CODE_REGISTER)
+//                startIntentSenderForResult(
+//                        activity,
+//                        it.intentSender,
+//                        REQUEST_CODE_REGISTER,
+//                        null,
+//                        0,
+//                        0,
+//                        0,
+//                        null
+//                )
+
             }
         } catch (e: Throwable) {
             callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
@@ -276,19 +293,23 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             builder.setAllowList(descriptors)
             val result = fido2ApiClient.getSignIntent(builder.build())
             result.addOnSuccessListener {
-                if (it.hasPendingIntent()) {
-                    try {
-                        this.callback = { map, error ->
-                            if (map != null && requestId != null) {
-                                map["id"] = requestId
-                            }
-                            callback.invoke(map, error)
-                        }
-                        it.launchPendingIntent(activity, REQUEST_CODE_SIGN)
-                    } catch (e: Throwable) {
-                        callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
+                this.callback = { map, error ->
+                    if (map != null && requestId != null) {
+                        map["id"] = requestId
                     }
+                    callback.invoke(map, error)
                 }
+                it.launchPendingIntent(activity, REQUEST_CODE_SIGN)
+//                startIntentSenderForResult(
+//                        activity,
+//                        it.intentSender,
+//                        REQUEST_CODE_SIGN,
+//                        null,
+//                        0,
+//                        0,
+//                        0,
+//                        null
+//                )
             }
         } catch (e: Throwable) {
             callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
@@ -329,6 +350,15 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
     }
 
     companion object {
+
+        fun registerWith(registrar: Registrar) {
+            val plugin = YubicoFlutterPlugin()
+            val channel = MethodChannel(registrar.messenger(), "yubico_flutter")
+            val activity = registrar.activity()
+            plugin.activity = activity
+            channel.setMethodCallHandler(plugin)
+        }
+
         const val REQUEST_CODE_SIGN = 129
         const val REQUEST_CODE_REGISTER = 130
         private val NUM_CORES = Runtime.getRuntime().availableProcessors()
