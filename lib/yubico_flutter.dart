@@ -8,7 +8,7 @@ class YubicoFlutter {
   KeyState keyState;
 
   // ignore: close_sinks
-  final _ctrl = StreamController.broadcast<KeyState>();
+  final _ctrl = StreamController<KeyState>.broadcast();
 
   Stream<KeyState> get onState => _ctrl.stream;
 
