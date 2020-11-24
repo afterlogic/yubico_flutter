@@ -20,7 +20,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    YubicoFlutter.instance.startSession();
     test();
   }
 
@@ -50,8 +49,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   test() async {
-    final response =
-        await get("https://test.afterlogic.com/.well-known/assetlinks.json");
+    final response = await get("https://test.afterlogic.com/.well-known/assetlinks.json");
     print(response.body);
   }
 
@@ -70,7 +68,9 @@ class _MyAppState extends State<MyApp> {
     );
     final map = jsonDecode(response1.body)["Result"]["publicKey"];
     print(map);
-    final keyResponse = await YubicoFlutter.instance.registrationRequest(
+
+    final fidoRequest = FidoRegisterRequest(
+      Duration(seconds: 30),
       "https://test.afterlogic.com",
       (map["timeout"] as num).toDouble(),
       map["challenge"],
@@ -81,8 +81,10 @@ class _MyAppState extends State<MyApp> {
       map["user"]["name"],
       map["user"]["displayName"],
       (map["pubKeyCredParams"] as List).cast(),
-      (map["allowCredentials"] as List).cast(),
+      (map["allowCredentials"] as List)?.cast(),
     );
+    final keyResponse = await fidoRequest.start("Connect your key", "Success");
+    fidoRequest.close();
     final response2 = await post(
       "https://test.afterlogic.com/?/Api/",
       headers: {
@@ -92,8 +94,8 @@ class _MyAppState extends State<MyApp> {
       body: {
         "Module": "TwoFactorAuth",
         "Method": "RegisterSecurityKeyAuthenticatorFinish",
-        "Parameters": jsonEncode(
-            {"Password": "p12345q", "Attestation": keyResponse["attestation"]}),
+        "Parameters":
+            jsonEncode({"Password": "p12345q", "Attestation": keyResponse["attestation"]}),
       },
     );
     print(jsonDecode(response2.body));
@@ -105,13 +107,14 @@ class _MyAppState extends State<MyApp> {
       body: {
         "Module": "TwoFactorAuth",
         "Method": "VerifySecurityKeyBegin",
-        "Parameters": jsonEncode(
-            {"Login": "n.yakovlev@afterlogic.com", "Password": "p12345q"}),
+        "Parameters": jsonEncode({"Login": "n.yakovlev@afterlogic.com", "Password": "p12345q"}),
       },
     );
     final map = jsonDecode(response1.body)["Result"]["publicKey"];
     print(map);
-    final keyResponse = await YubicoFlutter.instance.authRequest(
+
+    final fidoRequest = FidoAuthRequest(
+      Duration(seconds: 30),
       "https://test.afterlogic.com",
       (map["timeout"] as num).toDouble(),
       map["challenge"],
@@ -119,6 +122,8 @@ class _MyAppState extends State<MyApp> {
       map["rpId"],
       (map["allowCredentials"] as List).map((e) => e["id"] as String).toList(),
     );
+    final keyResponse = await fidoRequest.start("Connect your key", "Success");
+    fidoRequest.close();
     final response2 = await post(
       "https://test.afterlogic.com/?/Api/",
       body: {

@@ -14,8 +14,8 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "30"
-            endingLineNumber = "30"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
             landmarkName = "stateChange()"
             landmarkType = "7">
          </BreakpointContent>
@@ -30,40 +30,40 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "180"
-            endingLineNumber = "180"
+            startingLineNumber = "226"
+            endingLineNumber = "226"
             landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "C8158600-AAB6-4C64-A13F-8686E3E6C3AA - c910aa07e5f799ab"
+                  uuid = "C8158600-AAB6-4C64-A13F-8686E3E6C3AA - 48ae51a8db01e1e4"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "yubico_flutter.SwiftYubicoFlutterPlugin.registrationRequest(Swift.Bool, Swift.Optional&lt;Swift.Double&gt;, Swift.String, Swift.Optional&lt;Swift.String&gt;, Swift.String, Swift.String, Swift.String, Swift.String, Swift.String, Swift.Array&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, (Swift.Optional&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; ()"
+                  symbolName = "yubico_flutter.SwiftYubicoFlutterPlugin.registrationRequest(Swift.Bool, Swift.String, Swift.Optional&lt;Swift.Double&gt;, Swift.String, Swift.Optional&lt;Swift.String&gt;, Swift.String, Swift.String, Swift.String, Swift.String, Swift.String, Swift.Array&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, (Swift.Optional&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; ()"
                   moduleName = "yubico_flutter"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Volumes/SP_BOLT_B75/projects/flutter/yubico_flutter/ios/Classes/SwiftYubicoFlutterPlugin.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "157"
-                  endingLineNumber = "157"
-                  offsetFromSymbolStart = "3424">
+                  startingLineNumber = "219"
+                  endingLineNumber = "219"
+                  offsetFromSymbolStart = "3280">
                </Location>
                <Location
-                  uuid = "C8158600-AAB6-4C64-A13F-8686E3E6C3AA - 25be165f9970c497"
+                  uuid = "C8158600-AAB6-4C64-A13F-8686E3E6C3AA - 5ea99719b19491e3"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Swift.Optional&lt;__C.YKFKeyFIDO2MakeCredentialResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in yubico_flutter.SwiftYubicoFlutterPlugin.registrationRequest(Swift.Bool, Swift.Optional&lt;Swift.Double&gt;, Swift.String, Swift.Optional&lt;Swift.String&gt;, Swift.String, Swift.String, Swift.String, Swift.String, Swift.String, Swift.Array&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, (Swift.Optional&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; ()"
+                  symbolName = "closure #2 (Swift.Optional&lt;__C.YKFKeyFIDO2MakeCredentialResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in yubico_flutter.SwiftYubicoFlutterPlugin.registrationRequest(Swift.Bool, Swift.String, Swift.Optional&lt;Swift.Double&gt;, Swift.String, Swift.Optional&lt;Swift.String&gt;, Swift.String, Swift.String, Swift.String, Swift.String, Swift.String, Swift.Array&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, (Swift.Optional&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; ()"
                   moduleName = "yubico_flutter"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Volumes/SP_BOLT_B75/projects/flutter/yubico_flutter/ios/Classes/SwiftYubicoFlutterPlugin.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "158"
-                  endingLineNumber = "158"
-                  offsetFromSymbolStart = "216">
+                  startingLineNumber = "220"
+                  endingLineNumber = "220"
+                  offsetFromSymbolStart = "152">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -78,8 +78,8 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "167"
-            endingLineNumber = "167"
+            startingLineNumber = "213"
+            endingLineNumber = "213"
             landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -94,8 +94,8 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "172"
-            endingLineNumber = "172"
+            startingLineNumber = "218"
+            endingLineNumber = "218"
             landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -231,22 +231,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "54E2F303-89BB-4F2C-A1A6-D2FA19B8B879"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "181"
-            endingLineNumber = "181"
-            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "53726D53-E2C4-4717-BCD4-867F359E38D0"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -254,8 +238,8 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "187"
-            endingLineNumber = "187"
+            startingLineNumber = "228"
+            endingLineNumber = "228"
             landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -270,10 +254,42 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "207"
-            endingLineNumber = "207"
+            startingLineNumber = "247"
+            endingLineNumber = "247"
             landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "3EABFE84-F9EA-485D-BFA5-916C906D3DDD - 48ae51a8db01e440"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "yubico_flutter.SwiftYubicoFlutterPlugin.registrationRequest(Swift.Bool, Swift.String, Swift.Optional&lt;Swift.Double&gt;, Swift.String, Swift.Optional&lt;Swift.String&gt;, Swift.String, Swift.String, Swift.String, Swift.String, Swift.String, Swift.Array&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, (Swift.Optional&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "yubico_flutter"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/SP_BOLT_B75/projects/flutter/yubico_flutter/ios/Classes/SwiftYubicoFlutterPlugin.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "247"
+                  endingLineNumber = "247"
+                  offsetFromSymbolStart = "3668">
+               </Location>
+               <Location
+                  uuid = "3EABFE84-F9EA-485D-BFA5-916C906D3DDD - 48ae51a8db01e440"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "yubico_flutter.SwiftYubicoFlutterPlugin.registrationRequest(Swift.Bool, Swift.String, Swift.Optional&lt;Swift.Double&gt;, Swift.String, Swift.Optional&lt;Swift.String&gt;, Swift.String, Swift.String, Swift.String, Swift.String, Swift.String, Swift.Array&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, (Swift.Optional&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "yubico_flutter"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/SP_BOLT_B75/projects/flutter/yubico_flutter/ios/Classes/SwiftYubicoFlutterPlugin.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "247"
+                  endingLineNumber = "247"
+                  offsetFromSymbolStart = "3848">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -302,8 +318,8 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "77"
-            endingLineNumber = "77"
+            startingLineNumber = "109"
+            endingLineNumber = "109"
             landmarkName = "handle(_:result:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -318,8 +334,8 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "147"
-            endingLineNumber = "147"
+            startingLineNumber = "193"
+            endingLineNumber = "193"
             landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -334,8 +350,8 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "222"
-            endingLineNumber = "222"
+            startingLineNumber = "262"
+            endingLineNumber = "262"
             landmarkName = "authRequest(_:_:_:_:_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -350,8 +366,8 @@
             filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "36"
-            endingLineNumber = "36"
+            startingLineNumber = "56"
+            endingLineNumber = "56"
             landmarkName = "handle(_:result:)"
             landmarkType = "7">
             <Locations>
@@ -416,6 +432,262 @@
                   offsetFromSymbolStart = "728">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2F843571-15DD-4764-BF75-A3F7FA299EB9"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "init(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9B8213BA-CF25-481D-8C1E-499C094CEAD7"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "49"
+            endingLineNumber = "49"
+            landmarkName = "nfcStateChange()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8A55DCC0-82BA-4553-BAE8-1CD3ADCD2B4F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "180"
+            endingLineNumber = "180"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7CB3EBA0-EDCE-49DB-B8A4-5C46F44756F1"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "182"
+            endingLineNumber = "182"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "62A83150-5A0D-485A-8906-3D8754358A3A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C57C5F59-4665-4227-9B06-C3317EA4B505"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "227"
+            endingLineNumber = "227"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "32922936-3FBA-4FB9-876A-2B8E8E824CA1"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "188"
+            endingLineNumber = "188"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7F8A02BB-2B9D-426C-B7F9-0ECEFDF9692E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "224"
+            endingLineNumber = "224"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "044F0DDB-F4CB-4F60-8E8C-1A073041A17A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "230"
+            endingLineNumber = "230"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8FB74D7F-041A-45C5-BB5D-2437F8F2C937"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "232"
+            endingLineNumber = "232"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6F554FE1-1486-4522-AEB9-38C23C1BB28C"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "302"
+            endingLineNumber = "302"
+            landmarkName = "authRequest(_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DBAED604-81F4-448D-8E2D-B444AB134FC9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "326"
+            endingLineNumber = "326"
+            landmarkName = "authRequest(_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "DBAED604-81F4-448D-8E2D-B444AB134FC9 - 1b36acc7b6321f89"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "yubico_flutter.SwiftYubicoFlutterPlugin.authRequest(Swift.Bool, Swift.String, Swift.Optional&lt;Swift.Double&gt;, Swift.String, Swift.Optional&lt;Swift.String&gt;, Swift.String, Swift.Array&lt;Swift.String&gt;, (Swift.Optional&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "yubico_flutter"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/SP_BOLT_B75/projects/flutter/yubico_flutter/ios/Classes/SwiftYubicoFlutterPlugin.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "326"
+                  endingLineNumber = "326"
+                  offsetFromSymbolStart = "3552">
+               </Location>
+               <Location
+                  uuid = "DBAED604-81F4-448D-8E2D-B444AB134FC9 - 1b36acc7b6321f89"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "yubico_flutter.SwiftYubicoFlutterPlugin.authRequest(Swift.Bool, Swift.String, Swift.Optional&lt;Swift.Double&gt;, Swift.String, Swift.Optional&lt;Swift.String&gt;, Swift.String, Swift.Array&lt;Swift.String&gt;, (Swift.Optional&lt;Swift.Dictionary&lt;Swift.String, Swift.Optional&lt;Any&gt;&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "yubico_flutter"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/SP_BOLT_B75/projects/flutter/yubico_flutter/ios/Classes/SwiftYubicoFlutterPlugin.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "326"
+                  endingLineNumber = "326"
+                  offsetFromSymbolStart = "3716">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A65FFC92-B558-49E3-8FFC-C5E2F06FCCCB"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../ios/Classes/SwiftYubicoFlutterPlugin.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "231"
+            endingLineNumber = "231"
+            landmarkName = "registrationRequest(_:_:_:_:_:_:_:_:_:_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4AAB4700-C686-4BDE-A101-D8D3BD89CAF9"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Pods/YubiKit/YubiKit/YubiKit/Sessions/NFCSession/YKFNFCSession.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "87"
+            endingLineNumber = "87"
+            landmarkName = "-startIso7816Session"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

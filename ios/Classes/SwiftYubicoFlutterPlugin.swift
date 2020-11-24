@@ -23,11 +23,31 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
                 self?.stateChange()
             }
         })
+        if #available(iOS 11.0, *) {
+            if(supportNcf()){
+                
+                let nfcSession = YubiKitManager.shared.nfcSession as! YKFNFCSession
+                nfcSesionStateObservation = nfcSession.observe(\.iso7816SessionState, changeHandler: { [weak self] session, change in
+                    DispatchQueue.main.async {
+                        self?.nfcStateChange()
+                    }
+                })
+            }
+        }
+        
     }
     
     private func stateChange(){
         let state = YubiKitManager.shared.accessorySession.sessionState
         channel.invokeMethod("stateChange", arguments: state.rawValue)
+    }
+    
+
+    private func nfcStateChange(){
+        if #available(iOS 11.0, *) {
+        let state = YubiKitManager.shared.nfcSession.iso7816SessionState
+        channel.invokeMethod("nfcStateChange", arguments: state.rawValue)
+        }
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -36,6 +56,18 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
             switch call.method {
             case "startSession":
                 self.startSession()
+                return result("")
+            case "startNfcSession":
+                if  let map =   (call.arguments as? [Any])?[0] as? [String:Any] {
+                self.startNfcSession(map["message"] as! String,
+                                     map["success"] as! String)
+                }
+                return result("")
+            case "stopSession":
+                self.stopSession()
+                return result("")
+            case "stopNfcSession":
+                self.stopNfcSession()
                 return result("")
             case "authRequest":
                 if  let map =   (call.arguments as? [Any])?[0] as? [String:Any] {
@@ -107,7 +139,23 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
     func startSession(){
         YubiKitManager.shared.accessorySession.startSession()
     }
-    
+    func startNfcSession(_ message  : String,_ success : String){
+        if #available(iOS 13.0, *) {
+            YubiKitExternalLocalization.nfcScanAlertMessage=message
+            YubiKitExternalLocalization.nfcScanSuccessAlertMessage=success
+
+            
+            YubiKitManager.shared.nfcSession.startIso7816Session()
+        }
+    }
+    func stopSession(){
+        YubiKitManager.shared.accessorySession.stopSession()
+    }
+    func stopNfcSession(){
+        if #available(iOS 13.0, *) {
+            YubiKitManager.shared.nfcSession.stopIso7816Session()
+        }
+    }
     func registrationRequest(
         _ nfc:Bool,
         _ domainUrl : String,
@@ -129,9 +177,7 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
                 guard #available(iOS 13.0, *) else {
                     throw PluginError(.NfcNotSupported)
                 }
-                YubiKitManager.shared.nfcSession.startIso7816Session()
                 fido2Service = YubiKitManager.shared.nfcSession.fido2Service
-                
             } else {
                 fido2Service = YubiKitManager.shared.accessorySession.fido2Service
             }
@@ -177,12 +223,7 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
             
             makeCredentialRequest.options = [AnyHashable:Any]()
             
-            executeKeyRequestWith(nfc){ fido2Service!.execute(makeCredentialRequest){ (response, error) in
-                if(nfc){
-                    if #available(iOS 13.0, *) {
-                        YubiKitManager.shared.nfcSession.stopIso7816Session()
-                    }
-                }
+             fido2Service!.execute(makeCredentialRequest){ (response, error) in
                 if error != nil {
                     handler(nil,error)
                 }else if response == nil {
@@ -201,7 +242,6 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
                     ] as [String : Any?]
                     handler(map,nil)
                 }
-            }
             }
         } catch  {
             handler(nil,error)
@@ -257,12 +297,7 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
             }
             getAssertionRequest.allowList = allowList
             
-            executeKeyRequestWith(nfc){ fido2Service!.execute(getAssertionRequest){ (response, error) in
-                if(nfc){
-                    if #available(iOS 13.0, *) {
-                        YubiKitManager.shared.nfcSession.stopIso7816Session()
-                    }
-                }
+            fido2Service!.execute(getAssertionRequest){ (response, error) in
                 if error != nil {
                     handler(nil,error)
                 }else if response == nil {
@@ -287,39 +322,8 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
                     handler(map,nil)
                 }
             }
-            }
         } catch  {
             handler(nil,error)
-        }
-    }
-    
-    private func executeKeyRequestWith(_ nfc:Bool,execution: @escaping () -> Void) {
-        if !nfc {
-            // Execute the request right away.
-            execution()
-        } else {
-            guard #available(iOS 13.0, *) else {
-                fatalError()
-            }
-            
-            
-            
-            let nfcSession = YubiKitManager.shared.nfcSession as! YKFNFCSession
-            if nfcSession.iso7816SessionState == .open {
-                execution()
-                return
-            }
-            
-            // The ISO7816 session is started only when required since it's blocking the application UI with the NFC system action sheet.
-            YubiKitManager.shared.nfcSession.startIso7816Session()
-            
-            // Execute the request after the key(tag) is connected.
-            nfcSesionStateObservation = nfcSession.observe(\.iso7816SessionState, changeHandler: { [weak self] session, change in
-                if session.iso7816SessionState == .open {
-                    execution()
-                    self?.nfcSesionStateObservation = nil // remove the observation
-                }
-            })
         }
     }
 }
