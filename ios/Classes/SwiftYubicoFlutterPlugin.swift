@@ -143,8 +143,6 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
         if #available(iOS 13.0, *) {
             YubiKitExternalLocalization.nfcScanAlertMessage=message
             YubiKitExternalLocalization.nfcScanSuccessAlertMessage=success
-
-            
             YubiKitManager.shared.nfcSession.startIso7816Session()
         }
     }

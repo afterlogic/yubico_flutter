@@ -241,6 +241,9 @@ abstract class FidoRequet extends Sink {
       _yubico.onNfcState
           .firstWhere((element) => element == KeyState.OPEN)
           .then((value) => completer.complete(true));
+      _yubico.onNfcState
+          .firstWhere((element) => element == KeyState.CLOSED)
+          .then((value) => completer.completeError(CanceledByUser()));
       if (_yubico.keyState == KeyState.OPEN) {
         completer.complete(false);
       } else if (_yubico.nfcKeyState == KeyState.OPEN) {
@@ -272,6 +275,8 @@ abstract class FidoRequet extends Sink {
     _YubicoFlutter.instance.stopNfcSession();
   }
 }
+
+class CanceledByUser extends Error {}
 
 KeyState _toKeyState(int code) {
   switch (code) {
