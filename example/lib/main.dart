@@ -83,7 +83,8 @@ class _MyAppState extends State<MyApp> {
       (map["pubKeyCredParams"] as List).cast(),
       (map["allowCredentials"] as List)?.cast(),
     );
-    final keyResponse = await fidoRequest.start("Connect your key", "Success");
+    await fidoRequest.waitConnection("Connect your key", "Success");
+    final keyResponse = fidoRequest.start();
     fidoRequest.close();
     final response2 = await post(
       "https://test.afterlogic.com/?/Api/",
@@ -122,7 +123,8 @@ class _MyAppState extends State<MyApp> {
       map["rpId"],
       (map["allowCredentials"] as List).map((e) => e["id"] as String).toList(),
     );
-    final keyResponse = await fidoRequest.start("Connect your key", "Success");
+    await fidoRequest.waitConnection("Connect your key", "Success");
+    final keyResponse = fidoRequest.start();
     fidoRequest.close();
     final response2 = await post(
       "https://test.afterlogic.com/?/Api/",

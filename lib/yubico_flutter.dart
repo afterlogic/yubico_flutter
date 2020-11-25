@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
 
-class FidoAuthRequest extends FidoRequet {
+class FidoAuthRequest extends FidoRequest {
   final String domainUrl;
   final double timeout;
   final String challenge;
@@ -21,7 +21,7 @@ class FidoAuthRequest extends FidoRequet {
   ) : super(requestTimeout);
 
   @override
-  Future<Map<String, dynamic>> _request(bool isNfc) {
+  Future<Map<String, dynamic>> _request() {
     return _yubico.authRequest(
       domainUrl,
       timeout,
@@ -29,12 +29,12 @@ class FidoAuthRequest extends FidoRequet {
       requestId,
       rpId,
       credentials,
-      nfc: isNfc,
+      nfc: isNFC,
     );
   }
 }
 
-class FidoRegisterRequest extends FidoRequet {
+class FidoRegisterRequest extends FidoRequest {
   final String domainUrl;
   final double timeout;
   final String challenge;
@@ -63,7 +63,7 @@ class FidoRegisterRequest extends FidoRequet {
   ) : super(requestTimeout);
 
   @override
-  Future<Map<String, dynamic>> _request(bool isNfc) {
+  Future<Map<String, dynamic>> _request() {
     return _yubico.registrationRequest(
       domainUrl,
       timeout,
@@ -76,7 +76,7 @@ class FidoRegisterRequest extends FidoRequet {
       displayName,
       pubKeyCredParams,
       allowCredentials,
-      nfc: isNfc,
+      nfc: isNFC,
     );
   }
 }
@@ -224,39 +224,45 @@ class _YubicoFlutter {
   }
 }
 
-abstract class FidoRequet extends Sink {
+abstract class FidoRequest extends Sink {
   final _yubico = _YubicoFlutter.instance;
-  final Duration requestTimeout;
+  final Duration _requestTimeout;
+  bool _isNFC;
 
-  FidoRequet(this.requestTimeout);
+  bool get isNFC => _isNFC;
 
-  Future<Map<String, dynamic>> start(String message, String success) async {
+  FidoRequest(this._requestTimeout);
+
+  Future<bool> waitConnection(String message, String success) async {
+    _yubico.startSession();
+    _yubico.startNfcSession(message, success);
+    final completer = Completer<bool>();
+    _yubico.onState
+        .firstWhere((element) => element == KeyState.OPEN)
+        .then((value) => completer.complete(false));
+    _yubico.onNfcState
+        .firstWhere((element) => element == KeyState.OPEN)
+        .then((value) => completer.complete(true));
+    _yubico.onNfcState
+        .firstWhere((element) => element == KeyState.CLOSED)
+        .then((value) => completer.completeError(CanceledByUser()));
+    if (_yubico.keyState == KeyState.OPEN) {
+      completer.complete(false);
+    } else if (_yubico.nfcKeyState == KeyState.OPEN) {
+      completer.complete(true);
+    }
+    final isNfc = await completer.future.timeout(_requestTimeout);
+    if (isNfc) {
+      _YubicoFlutter.instance.stopSession();
+    } else {
+      _YubicoFlutter.instance.stopNfcSession();
+    }
+    return isNfc;
+  }
+
+  start() {
     try {
-      _yubico.startSession();
-      _yubico.startNfcSession(message, success);
-      final completer = Completer<bool>();
-      _yubico.onState
-          .firstWhere((element) => element == KeyState.OPEN)
-          .then((value) => completer.complete(false));
-      _yubico.onNfcState
-          .firstWhere((element) => element == KeyState.OPEN)
-          .then((value) => completer.complete(true));
-      _yubico.onNfcState
-          .firstWhere((element) => element == KeyState.CLOSED)
-          .then((value) => completer.completeError(CanceledByUser()));
-      if (_yubico.keyState == KeyState.OPEN) {
-        completer.complete(false);
-      } else if (_yubico.nfcKeyState == KeyState.OPEN) {
-        completer.complete(true);
-      }
-      final isNfc = await completer.future.timeout(requestTimeout);
-      if (isNfc) {
-        _YubicoFlutter.instance.stopSession();
-      } else {
-        _YubicoFlutter.instance.stopNfcSession();
-      }
-      final result = await _request(isNfc);
-      return result;
+      return _request();
     } catch (e) {
       rethrow;
     } finally {
@@ -264,7 +270,7 @@ abstract class FidoRequet extends Sink {
     }
   }
 
-  Future<Map<String, dynamic>> _request(bool isNfc);
+  Future<Map<String, dynamic>> _request();
 
   @override
   void add(data) {}
