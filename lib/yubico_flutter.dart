@@ -251,18 +251,19 @@ abstract class FidoRequest extends Sink {
     } else if (_yubico.nfcKeyState == KeyState.OPEN) {
       completer.complete(true);
     }
-    final isNfc = await completer.future.timeout(_requestTimeout);
-    if (isNfc) {
+    _isNFC = await completer.future.timeout(_requestTimeout);
+    if (_isNFC) {
       _YubicoFlutter.instance.stopSession();
     } else {
       _YubicoFlutter.instance.stopNfcSession();
     }
-    return isNfc;
+    return _isNFC;
   }
 
-  start() {
+  Future<Map<String, dynamic>>  start() async {
     try {
-      return _request();
+      final result = await _request();
+      return result;
     } catch (e) {
       rethrow;
     } finally {

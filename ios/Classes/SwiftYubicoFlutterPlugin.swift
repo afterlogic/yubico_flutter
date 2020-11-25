@@ -51,7 +51,7 @@ public class SwiftYubicoFlutterPlugin: NSObject, FlutterPlugin {
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        
+        print("SwiftYubicoFlutterPlugin\(call.method)")
         DispatchQueue.global(qos: .utility).async {
             switch call.method {
             case "startSession":
