@@ -235,21 +235,30 @@ abstract class FidoRequest extends Sink {
 
   Future<bool> waitConnection(String message, String success) async {
     _yubico.startSession();
-    _yubico.startNfcSession(message, success);
+    await Future.delayed(Duration(milliseconds: 300));
     final completer = Completer<bool>();
+    if (_yubico.keyState == KeyState.OPEN) {
+      completer.complete(false);
+    }
     _yubico.onState
         .firstWhere((element) => element == KeyState.OPEN)
         .then((value) => completer.complete(false));
-    _yubico.onNfcState
-        .firstWhere((element) => element == KeyState.OPEN)
-        .then((value) => completer.complete(true));
-    _yubico.onNfcState
+    _yubico.onState
         .firstWhere((element) => element == KeyState.CLOSED)
         .then((value) => completer.completeError(CanceledByUser()));
-    if (_yubico.keyState == KeyState.OPEN) {
-      completer.complete(false);
-    } else if (_yubico.nfcKeyState == KeyState.OPEN) {
-      completer.complete(true);
+    if (_yubico.keyState != KeyState.OPEN) {
+      _yubico.startNfcSession(message, success);
+      _yubico.onNfcState
+          .firstWhere((element) => element == KeyState.OPEN)
+          .then((value) => completer.complete(true));
+      _yubico.onNfcState
+          .firstWhere((element) => element == KeyState.CLOSED)
+          .then((value) => completer.completeError(CanceledByUser()));
+      if (_yubico.keyState == KeyState.OPEN) {
+        completer.complete(false);
+      } else if (_yubico.nfcKeyState == KeyState.OPEN) {
+        completer.complete(true);
+      }
     }
     _isNFC = await completer.future.timeout(_requestTimeout);
     if (_isNFC) {
@@ -260,7 +269,7 @@ abstract class FidoRequest extends Sink {
     return _isNFC;
   }
 
-  Future<Map<String, dynamic>>  start() async {
+  Future<Map<String, dynamic>> start() async {
     try {
       final result = await _request();
       return result;
