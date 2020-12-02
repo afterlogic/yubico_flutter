@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:yubico_flutter/yubico_flutter.dart';
+import 'package:yubico_flutter_example/auth_data.dart';
 
 void main() {
   runApp(MyApp());
@@ -49,8 +50,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   test() async {
-    final response = await get("https://test.afterlogic.com/.well-known/assetlinks.json");
-    print(response.body);
+//    final response = await get("https://test.afterlogic.com/.well-known/assetlinks.json");
+//    print(response.body);
   }
 
   registerRequest() async {
@@ -63,7 +64,7 @@ class _MyAppState extends State<MyApp> {
       body: {
         "Module": "TwoFactorAuth",
         "Method": "RegisterSecurityKeyAuthenticatorBegin",
-        "Parameters": jsonEncode({"Password": "p12345q"}),
+        "Parameters": jsonEncode({"Password": AuthData.password}),
       },
     );
     final map = jsonDecode(response1.body)["Result"]["publicKey"];
@@ -96,7 +97,7 @@ class _MyAppState extends State<MyApp> {
         "Module": "TwoFactorAuth",
         "Method": "RegisterSecurityKeyAuthenticatorFinish",
         "Parameters":
-            jsonEncode({"Password": "p12345q", "Attestation": keyResponse["attestation"]}),
+            jsonEncode({"Password": AuthData.password, "Attestation": keyResponse["attestation"]}),
       },
     );
     print(jsonDecode(response2.body));
@@ -108,7 +109,7 @@ class _MyAppState extends State<MyApp> {
       body: {
         "Module": "TwoFactorAuth",
         "Method": "VerifySecurityKeyBegin",
-        "Parameters": jsonEncode({"Login": "n.yakovlev@afterlogic.com", "Password": "p12345q"}),
+        "Parameters": jsonEncode({"Login": AuthData.login, "Password":AuthData.password}),
       },
     );
     final map = jsonDecode(response1.body)["Result"]["publicKey"];
@@ -132,12 +133,13 @@ class _MyAppState extends State<MyApp> {
         "Module": "TwoFactorAuth",
         "Method": "VerifySecurityKeyFinish",
         "Parameters": jsonEncode({
-          "Login": "n.yakovlev@afterlogic.com",
-          "Password": "p12345q",
+          "Login": AuthData.login,
+          "Password": AuthData.password,
           "Attestation": keyResponse["attestation"]
         }),
       },
     );
     print(jsonDecode(response2.body));
+
   }
 }

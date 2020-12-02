@@ -350,7 +350,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
     }
 
     companion object {
-
+        @JvmStatic
         fun registerWith(registrar: Registrar) {
             val plugin = YubicoFlutterPlugin()
             val channel = MethodChannel(registrar.messenger(), "yubico_flutter")
