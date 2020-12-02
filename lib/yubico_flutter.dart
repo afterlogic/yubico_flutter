@@ -177,7 +177,11 @@ class _YubicoFlutter {
       print(map);
       return map.cast();
     } catch (e) {
-      if (e is PlatformException) {}
+      if (e is PlatformException) {
+        final code = int.tryParse(e.code) ?? 0;
+
+        throw FidoErrorCase.values[code];
+      }
       print(e);
       rethrow;
     }
@@ -217,7 +221,11 @@ class _YubicoFlutter {
       print(map);
       return map.cast();
     } catch (e) {
-      if (e is PlatformException) {}
+      if (e is PlatformException) {
+        final code = int.tryParse(e.code) ?? 0;
+
+        throw FidoErrorCase.values[code];
+      }
       print(e);
       rethrow;
     }
@@ -350,10 +358,11 @@ enum KeyState {
   /// 3
   OPENING,
 }
-
-enum IOSError {
-  Undefined,
-  EmptyResult,
-  NotAttached,
-  NfcNotSupported,
+enum FidoErrorCase {
+  RequestFailed,
+  EmptyResponse,
+  Canceled,
+  InvalidResult,
+  ErrorResponse,
+  MapError,
 }
