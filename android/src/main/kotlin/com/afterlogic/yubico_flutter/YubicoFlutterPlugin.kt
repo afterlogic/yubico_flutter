@@ -5,6 +5,7 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import androidx.annotation.NonNull
+import androidx.core.app.ActivityCompat.startIntentSenderForResult
 import com.google.android.gms.common.util.Base64Utils
 import com.google.android.gms.fido.Fido
 import com.google.android.gms.fido.fido2.api.common.*
@@ -58,7 +59,11 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if ((requestCode == REQUEST_CODE_SIGN || requestCode == REQUEST_CODE_REGISTER) && data != null) {
+        if ((requestCode == REQUEST_CODE_SIGN || requestCode == REQUEST_CODE_REGISTER)) {
+            if (data == null || resultCode == RESULT_CANCELED) {
+                callback?.invoke(null, PluginError(ErrorCase.Canceled))
+                return true
+            }
             when (resultCode) {
                 RESULT_OK -> {
                     when {
@@ -79,7 +84,6 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                             maRegisterResponse(response)
                         }
                     }
-                    return true
                 }
                 RESULT_CANCELED -> {
                     callback?.invoke(null, PluginError(ErrorCase.Canceled))
@@ -88,6 +92,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                     callback?.invoke(null, PluginError(ErrorCase.InvalidResult, resultCode.toString()))
                 }
             }
+            return true
         }
         return false
     }
@@ -234,7 +239,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
 //            criteria.setAttachment()
             builder.setAuthenticatorSelection(criteria.build())//+
 
-            val result = fido2ApiClient.getRegisterIntent(builder.build())
+            val result = fido2ApiClient.getRegisterPendingIntent(builder.build())
             result.addOnSuccessListener {
                 this.callback = { map, error ->
                     if (map != null && requestId != null) {
@@ -242,17 +247,16 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                     }
                     callback.invoke(map, error)
                 }
-                it.launchPendingIntent(activity, REQUEST_CODE_REGISTER)
-//                startIntentSenderForResult(
-//                        activity,
-//                        it.intentSender,
-//                        REQUEST_CODE_REGISTER,
-//                        null,
-//                        0,
-//                        0,
-//                        0,
-//                        null
-//                )
+                startIntentSenderForResult(
+                        activity,
+                        it.intentSender,
+                        REQUEST_CODE_REGISTER,
+                        null,
+                        0,
+                        0,
+                        0,
+                        null
+                )
 
             }
         } catch (e: Throwable) {
@@ -296,7 +300,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                 descriptors.add(publicKeyCredentialDescriptor)
             }
             builder.setAllowList(descriptors)
-            val result = fido2ApiClient.getSignIntent(builder.build())
+            val result = fido2ApiClient.getSignPendingIntent(builder.build())
             result.addOnSuccessListener {
                 this.callback = { map, error ->
                     if (map != null && requestId != null) {
@@ -304,17 +308,16 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                     }
                     callback.invoke(map, error)
                 }
-                it.launchPendingIntent(activity, REQUEST_CODE_SIGN)
-//                startIntentSenderForResult(
-//                        activity,
-//                        it.intentSender,
-//                        REQUEST_CODE_SIGN,
-//                        null,
-//                        0,
-//                        0,
-//                        0,
-//                        null
-//                )
+                startIntentSenderForResult(
+                        activity,
+                        it.intentSender,
+                        REQUEST_CODE_SIGN,
+                        null,
+                        0,
+                        0,
+                        0,
+                        null
+                )
             }
         } catch (e: Throwable) {
             callback(null, PluginError(ErrorCase.RequestFailed, e.message ?: "", e))
