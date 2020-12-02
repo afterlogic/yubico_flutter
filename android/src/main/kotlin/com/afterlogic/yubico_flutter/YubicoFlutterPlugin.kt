@@ -271,7 +271,12 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
 
         try {
             if (this.callback != null) {
-                this.callback?.invoke(null, null)
+                try {
+                    this.callback?.invoke(null, null)
+                } catch (e: Throwable) {
+                    print(e)
+                }
+                this.callback = null
             }
             this.callback = null
             val activity = activity ?: return callback(null, null)
