@@ -363,6 +363,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             val plugin = YubicoFlutterPlugin()
             val channel = MethodChannel(registrar.messenger(), "yubico_flutter")
             val activity = registrar.activity()
+            registrar.addActivityResultListener(plugin)
             plugin.activity = activity
             channel.setMethodCallHandler(plugin)
         }
