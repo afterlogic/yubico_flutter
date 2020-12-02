@@ -33,18 +33,18 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Center(
             child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FlatButton(
-              child: Text("registration"),
-              onPressed: registerRequest,
-            ),
-            FlatButton(
-              child: Text("auth"),
-              onPressed: authRequest,
-            ),
-          ],
-        )),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FlatButton(
+                  child: Text("registration"),
+                  onPressed: registerRequest,
+                ),
+                FlatButton(
+                  child: Text("auth"),
+                  onPressed: authRequest,
+                ),
+              ],
+            )),
       ),
     );
   }
@@ -59,7 +59,7 @@ class _MyAppState extends State<MyApp> {
       "https://test.afterlogic.com/?/Api/",
       headers: {
         "Authorization":
-            "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
+        "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
       },
       body: {
         "Module": "TwoFactorAuth",
@@ -91,13 +91,15 @@ class _MyAppState extends State<MyApp> {
       "https://test.afterlogic.com/?/Api/",
       headers: {
         "Authorization":
-            "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
+        "Bearer l5wOgQ5iQwtudpdNvGBRU1xu44ssgDMGL2AVblvv01aHuMW8kOqb6_HPuYzrTT7xNBDxYlP-jq74ZZ0DFyn0mD0HvgNTrg0yaUv895otGtWmxuGx2pIddiwKwoPPBhH2wJzDqHToS_IrIpLgyaoxARvfjs06zh-iL-8o1cStQKzAvVIWXkU62zxcc_IWg-WDsgnRmx976yS253eBE2yuTqIoDbhQne7ANOD3iXa8rQM7qP__OgJeYg_tQ3TnHVyYk0aWHB-c8XGqGwZLOeTMi28UtH0"
       },
       body: {
         "Module": "TwoFactorAuth",
         "Method": "RegisterSecurityKeyAuthenticatorFinish",
-        "Parameters":
-            jsonEncode({"Password": AuthData.password, "Attestation": keyResponse["attestation"]}),
+        "Parameters": jsonEncode({
+          "Password": AuthData.password,
+          "Attestation": keyResponse["attestation"]
+        }),
       },
     );
     print(jsonDecode(response2.body));
@@ -109,7 +111,8 @@ class _MyAppState extends State<MyApp> {
       body: {
         "Module": "TwoFactorAuth",
         "Method": "VerifySecurityKeyBegin",
-        "Parameters": jsonEncode({"Login": AuthData.login, "Password":AuthData.password}),
+        "Parameters": jsonEncode(
+            {"Login": AuthData.login, "Password": AuthData.password}),
       },
     );
     final map = jsonDecode(response1.body)["Result"]["publicKey"];
@@ -135,11 +138,10 @@ class _MyAppState extends State<MyApp> {
         "Parameters": jsonEncode({
           "Login": AuthData.login,
           "Password": AuthData.password,
-          "Attestation": keyResponse["attestation"]
+          "Attestation": {...keyResponse, "id": ""}
         }),
       },
     );
     print(jsonDecode(response2.body));
-
   }
 }

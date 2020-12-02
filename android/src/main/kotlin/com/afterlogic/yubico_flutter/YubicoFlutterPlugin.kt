@@ -351,7 +351,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
         val map = mutableMapOf<String, Any>(
                 "authenticatorData" to authenticatorData,
                 "clientDataJSON" to clientDataJSON,
-                "credentialId" to credentialId,
+                "id" to credentialId,
                 "signature" to signature
         )
         this.callback?.invoke(map, null)

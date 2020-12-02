@@ -175,7 +175,11 @@ class _YubicoFlutter {
         }
       ]);
       print(map);
-      return map.cast();
+      if (Platform.isIOS) {
+        return map["attestation"].cast();
+      } else {
+        return map.cast();
+      }
     } catch (e) {
       if (e is PlatformException) {
         final code = int.tryParse(e.code) ?? 0;
