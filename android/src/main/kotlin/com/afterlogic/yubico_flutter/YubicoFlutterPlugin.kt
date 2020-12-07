@@ -111,13 +111,17 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                             map["rpId"] as String,
                             map["credentials"] as List<String>
                     ) { response, error ->
-                        if (error != null) {
-                            return@authRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
+                        try {
+                            if (error != null) {
+                                return@authRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
+                            }
+                            if (response == null) {
+                                return@authRequest result.error(ErrorCase.EmptyResponse.ordinal.toString(), "", "")
+                            }
+                            return@authRequest result.success(response)
+                        } catch (e: Throwable) {
+                            print(e)
                         }
-                        if (response == null) {
-                            return@authRequest result.error(ErrorCase.EmptyResponse.ordinal.toString(), "", "")
-                        }
-                        return@authRequest result.success(response)
                     }
                 }
                 "registrationRequest" -> {
@@ -242,9 +246,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             val result = fido2ApiClient.getRegisterPendingIntent(builder.build())
             result.addOnSuccessListener {
                 this.callback = { map, error ->
-                    if (map != null && requestId != null) {
-                        map["id"] = requestId
-                    }
+                    this.callback = callback
                     callback.invoke(map, error)
                 }
                 startIntentSenderForResult(
@@ -302,12 +304,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             builder.setAllowList(descriptors)
             val result = fido2ApiClient.getSignPendingIntent(builder.build())
             result.addOnSuccessListener {
-                this.callback = { map, error ->
-                    if (map != null && requestId != null) {
-                        map["id"] = requestId
-                    }
-                    callback.invoke(map, error)
-                }
+                this.callback = callback
                 startIntentSenderForResult(
                         activity,
                         it.intentSender,
@@ -332,7 +329,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
     }
 
     private fun maRegisterResponse(response: AuthenticatorAttestationResponse) {
-        val clientDataJSON = String(response.clientDataJSON, Charsets.UTF_8)
+        val clientDataJSON = Base64Utils.encode(response.clientDataJSON)
         val attestationObject: String = Base64Utils.encode(response.attestationObject)
 
         val map = mutableMapOf<String, Any>(
@@ -343,7 +340,7 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
     }
 
     private fun mapAuthResponse(response: AuthenticatorAssertionResponse) {
-        val clientDataJSON = String(response.clientDataJSON, Charsets.UTF_8)
+        val clientDataJSON = Base64Utils.encode(response.clientDataJSON)
         val authenticatorData: String = Base64Utils.encode(response.authenticatorData)
         val credentialId: String = Base64Utils.encode(response.keyHandle)
         val signature: String = Base64Utils.encode(response.signature)
