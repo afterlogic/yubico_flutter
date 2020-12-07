@@ -176,7 +176,7 @@ class _YubicoFlutter {
       ]);
       print(map);
       if (Platform.isIOS) {
-        return map["attestation"].cast();
+        return  Map.castFrom(map["attestation"] as Map);
       } else {
         return map.cast();
       }
