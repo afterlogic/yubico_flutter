@@ -176,15 +176,15 @@ class _YubicoFlutter {
       ]);
       print(map);
       if (Platform.isIOS) {
-        return  Map.castFrom(map["attestation"] as Map);
+        return Map.castFrom(map["attestation"] as Map);
       } else {
         return map.cast();
       }
     } catch (e) {
       if (e is PlatformException) {
         final code = int.tryParse(e.code) ?? 0;
-
-        throw FidoErrorCase.values[code];
+        final errorCase = FidoErrorCase.values[code];
+        throw FidoError(e.message, errorCase);
       }
       print(e);
       rethrow;
@@ -227,8 +227,8 @@ class _YubicoFlutter {
     } catch (e) {
       if (e is PlatformException) {
         final code = int.tryParse(e.code) ?? 0;
-
-        throw FidoErrorCase.values[code];
+        final errorCase = FidoErrorCase.values[code];
+        throw FidoError(e.message, errorCase);
       }
       print(e);
       rethrow;
@@ -362,6 +362,15 @@ enum KeyState {
   /// 3
   OPENING,
 }
+
+class FidoError {
+  final String message;
+
+  final FidoErrorCase errorCase;
+
+  FidoError(this.message, this.errorCase);
+}
+
 enum FidoErrorCase {
   RequestFailed,
   EmptyResponse,

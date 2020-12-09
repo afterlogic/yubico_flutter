@@ -127,35 +127,30 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                 "registrationRequest" -> {
                     val map = ((call.arguments as? List<*>)?.firstOrNull() as? Map<*, *>)
                             ?: return result.notImplemented()
-                    Tasks.call(
-                            THREAD_POOL_EXECUTOR,
-                            Callable<PublicKeyCredentialCreationOptions?> {
-                                registrationRequest(
-                                        (map["timeout"] as? Number)?.toDouble(),
-                                        map["challenge"] as String,
-                                        map["requestId"] as? String,
-                                        map["rpId"] as String,
-                                        map["rpName"] as String,
-                                        map["userId"] as String,
-                                        map["name"] as String,
-                                        map["displayName"] as String,
-                                        map["pubKeyCredParams"] as? List<Map<String, Any>>,
-                                        map["allowCredentials"] as? List<Map<String, Any>>
-                                ) { response, error ->
-                                    if (error != null) {
-                                        return@registrationRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
-                                    }
-                                    if (response == null) {
-                                        try {
-                                            return@registrationRequest result.error(ErrorCase.EmptyResponse.ordinal.toString(), "", "")
-                                        } catch (e: Throwable) {
-                                            print(e)
-                                        }
-                                    }
-                                    return@registrationRequest result.success(response)
-                                }
-                                return@Callable null
-                            })
+                    registrationRequest(
+                            (map["timeout"] as? Number)?.toDouble(),
+                            map["challenge"] as String,
+                            map["requestId"] as? String,
+                            map["rpId"] as String,
+                            map["rpName"] as String,
+                            map["userId"] as String,
+                            map["name"] as String,
+                            map["displayName"] as String,
+                            map["pubKeyCredParams"] as? List<Map<String, Any>>,
+                            map["allowCredentials"] as? List<Map<String, Any>>
+                    ) { response, error ->
+                        if (error != null) {
+                            return@registrationRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
+                        }
+                        if (response == null) {
+                            try {
+                                return@registrationRequest result.error(ErrorCase.EmptyResponse.ordinal.toString(), "", "")
+                            } catch (e: Throwable) {
+                                print(e)
+                            }
+                        }
+                        return@registrationRequest result.success(response)
+                    }
                 }
                 else -> {
                     result.notImplemented()
@@ -367,9 +362,6 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
 
         const val REQUEST_CODE_SIGN = 129
         const val REQUEST_CODE_REGISTER = 130
-        private val NUM_CORES = Runtime.getRuntime().availableProcessors()
-        private val THREAD_POOL_EXECUTOR = ThreadPoolExecutor(
-                NUM_CORES * 2, NUM_CORES * 2, 60L, TimeUnit.SECONDS, LinkedBlockingDeque())
     }
 }
 
