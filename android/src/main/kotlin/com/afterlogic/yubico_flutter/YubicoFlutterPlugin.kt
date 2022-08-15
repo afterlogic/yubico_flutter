@@ -79,7 +79,10 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                             mapAuthResponse(response)
                         }
                         requestCode == REQUEST_CODE_REGISTER -> {
-                            val bytes = data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)
+                            var bytes = data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)
+                            if (bytes == null) {
+                                bytes = ByteArray(0)
+                            }
                             val response = AuthenticatorAttestationResponse.deserializeFromBytes(bytes)
                             maRegisterResponse(response)
                         }

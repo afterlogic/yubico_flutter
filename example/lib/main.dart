@@ -1,14 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:http/http.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
 import 'package:yubico_flutter/yubico_flutter.dart';
-import 'package:yubico_flutter_example/auth_data.dart';
+// import 'package:yubico_flutter_example/auth_data.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,11 +33,11 @@ class _MyAppState extends State<MyApp> {
             child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            FlatButton(
+            TextButton(
               child: Text("registration"),
               onPressed: registerRequest,
             ),
-            FlatButton(
+            TextButton(
               child: Text("auth"),
               onPressed: authRequest,
             ),
@@ -153,4 +149,9 @@ class _MyAppState extends State<MyApp> {
     );
     print(jsonDecode(response2.body));
   }
+}
+
+class AuthData {
+  static String login = 'login';
+  static String password = 'password';
 }
