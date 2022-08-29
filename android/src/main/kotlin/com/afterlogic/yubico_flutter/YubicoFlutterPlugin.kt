@@ -26,10 +26,12 @@ import java.util.concurrent.TimeUnit
 
 
 /** YubicoFlutterPlugin */
-class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
+class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
+    PluginRegistry.ActivityResultListener {
     private lateinit var channel: MethodChannel
     private var activity: Activity? = null
     private var callback: ((MutableMap<String, Any>?, PluginError?) -> Unit)? = null
+
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "yubico_flutter")
         channel.setMethodCallHandler(this)
@@ -69,13 +71,14 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                     when {
                         data.hasExtra(Fido.FIDO2_KEY_ERROR_EXTRA) -> {
                             val error = data.getByteArrayExtra(Fido.FIDO2_KEY_ERROR_EXTRA)
-                                    ?: return false
+                                ?: return false
                             val response = AuthenticatorErrorResponse.deserializeFromBytes(error)
                             mapError(response)
                         }
                         requestCode == REQUEST_CODE_SIGN -> {
                             val bytes = data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)
-                            val response = AuthenticatorAssertionResponse.deserializeFromBytes(bytes)
+                            val response =
+                                AuthenticatorAssertionResponse.deserializeFromBytes(bytes)
                             mapAuthResponse(response)
                         }
                         requestCode == REQUEST_CODE_REGISTER -> {
@@ -83,7 +86,9 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                             if (bytes == null) {
                                 bytes = ByteArray(0)
                             }
-                            val response = AuthenticatorAttestationResponse.deserializeFromBytes(bytes)
+                            val response = AuthenticatorAttestationResponse.deserializeFromBytes(
+                                bytes ?: ByteArray(0)
+                            )
                             maRegisterResponse(response)
                         }
                     }
@@ -92,7 +97,10 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                     callback?.invoke(null, PluginError(ErrorCase.Canceled))
                 }
                 else -> {
-                    callback?.invoke(null, PluginError(ErrorCase.InvalidResult, resultCode.toString()))
+                    callback?.invoke(
+                        null,
+                        PluginError(ErrorCase.InvalidResult, resultCode.toString())
+                    )
                 }
             }
             return true
@@ -105,21 +113,29 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             when (call.method) {
                 "authRequest" -> {
                     val map = ((call.arguments as? List<*>)?.firstOrNull() as? Map<*, *>)
-                            ?: return result.notImplemented()
+                        ?: return result.notImplemented()
 
                     return authRequest(
-                            (map["timeout"] as? Number)?.toDouble(),
-                            map["challenge"] as String,
-                            map["requestId"] as? String,
-                            map["rpId"] as String,
-                            map["credentials"] as List<String>
+                        (map["timeout"] as? Number)?.toDouble(),
+                        map["challenge"] as String,
+                        map["requestId"] as? String,
+                        map["rpId"] as String,
+                        map["credentials"] as List<String>
                     ) { response, error ->
                         try {
                             if (error != null) {
-                                return@authRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
+                                return@authRequest result.error(
+                                    error.errorCase.ordinal.toString(),
+                                    error.message,
+                                    error.error.toString()
+                                )
                             }
                             if (response == null) {
-                                return@authRequest result.error(ErrorCase.EmptyResponse.ordinal.toString(), "", "")
+                                return@authRequest result.error(
+                                    ErrorCase.EmptyResponse.ordinal.toString(),
+                                    "",
+                                    ""
+                                )
                             }
                             return@authRequest result.success(response)
                         } catch (e: Throwable) {
@@ -129,25 +145,33 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                 }
                 "registrationRequest" -> {
                     val map = ((call.arguments as? List<*>)?.firstOrNull() as? Map<*, *>)
-                            ?: return result.notImplemented()
+                        ?: return result.notImplemented()
                     registrationRequest(
-                            (map["timeout"] as? Number)?.toDouble(),
-                            map["challenge"] as String,
-                            map["requestId"] as? String,
-                            map["rpId"] as String,
-                            map["rpName"] as String,
-                            map["userId"] as String,
-                            map["name"] as String,
-                            map["displayName"] as String,
-                            map["pubKeyCredParams"] as? List<Map<String, Any>>,
-                            map["allowCredentials"] as? List<Map<String, Any>>
+                        (map["timeout"] as? Number)?.toDouble(),
+                        map["challenge"] as String,
+                        map["requestId"] as? String,
+                        map["rpId"] as String,
+                        map["rpName"] as String,
+                        map["userId"] as String,
+                        map["name"] as String,
+                        map["displayName"] as String,
+                        map["pubKeyCredParams"] as? List<Map<String, Any>>,
+                        map["allowCredentials"] as? List<Map<String, Any>>
                     ) { response, error ->
                         if (error != null) {
-                            return@registrationRequest result.error(error.errorCase.ordinal.toString(), error.message, error.error.toString())
+                            return@registrationRequest result.error(
+                                error.errorCase.ordinal.toString(),
+                                error.message,
+                                error.error.toString()
+                            )
                         }
                         if (response == null) {
                             try {
-                                return@registrationRequest result.error(ErrorCase.EmptyResponse.ordinal.toString(), "", "")
+                                return@registrationRequest result.error(
+                                    ErrorCase.EmptyResponse.ordinal.toString(),
+                                    "",
+                                    ""
+                                )
                             } catch (e: Throwable) {
                                 print(e)
                             }
@@ -161,25 +185,25 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             }
         } catch (e: Throwable) {
             return result.error(
-                    ErrorCase.MapError.ordinal.toString(),
-                    e.message ?: "",
-                    e.toString()
+                ErrorCase.MapError.ordinal.toString(),
+                e.message ?: "",
+                e.toString()
             )
         }
     }
 
     private fun registrationRequest(
-            timeout: Double?,
-            challenge: String,
-            requestId: String?,
-            rpId: String,
-            rpName: String,
-            userId: String,
-            name: String,
-            displayName: String,
-            pubKeyCredParams: List<Map<String, Any>>? = null,
-            allowCredentials: List<Map<String, Any>>? = null,
-            callback: (MutableMap<String, Any>?, PluginError?) -> Unit
+        timeout: Double?,
+        challenge: String,
+        requestId: String?,
+        rpId: String,
+        rpName: String,
+        userId: String,
+        name: String,
+        displayName: String,
+        pubKeyCredParams: List<Map<String, Any>>? = null,
+        allowCredentials: List<Map<String, Any>>? = null,
+        callback: (MutableMap<String, Any>?, PluginError?) -> Unit
     ) {
 
         try {
@@ -201,10 +225,11 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             builder.setRp(entity)//-
 
             val userEntity = PublicKeyCredentialUserEntity(
-                    displayName.toByteArray() /* id */,
-                    displayName /* name */,
-                    null,
-                    displayName)
+                displayName.toByteArray() /* id */,
+                displayName /* name */,
+                null,
+                displayName
+            )
             builder.setUser(userEntity)//+-
 
 
@@ -230,7 +255,8 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                     val id = item["id"] as? String
                     val type = item["type"] as? String
                     if (type == "public-key" && id != null) {
-                        val descriptor = PublicKeyCredentialDescriptor(type, Base64Utils.decode(id), null)
+                        val descriptor =
+                            PublicKeyCredentialDescriptor(type, Base64Utils.decode(id), null)
                         descriptors.add(descriptor)
                     }
                 }
@@ -248,14 +274,14 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
                     callback.invoke(map, error)
                 }
                 startIntentSenderForResult(
-                        activity,
-                        it.intentSender,
-                        REQUEST_CODE_REGISTER,
-                        null,
-                        0,
-                        0,
-                        0,
-                        null
+                    activity,
+                    it.intentSender,
+                    REQUEST_CODE_REGISTER,
+                    null,
+                    0,
+                    0,
+                    0,
+                    null
                 )
 
             }
@@ -265,12 +291,12 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
     }
 
     private fun authRequest(
-            timeout: Double?,
-            challenge: String,
-            requestId: String?,
-            rpId: String,
-            credentials: List<String>,
-            callback: (MutableMap<String, Any>?, PluginError?) -> Unit
+        timeout: Double?,
+        challenge: String,
+        requestId: String?,
+        rpId: String,
+        credentials: List<String>,
+        callback: (MutableMap<String, Any>?, PluginError?) -> Unit
     ) {
 
         try {
@@ -294,9 +320,10 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             val descriptors = ArrayList<PublicKeyCredentialDescriptor>()
             for (allowedKey in credentials) {
                 val publicKeyCredentialDescriptor = PublicKeyCredentialDescriptor(
-                        PublicKeyCredentialType.PUBLIC_KEY.toString(),
-                        Base64Utils.decode(allowedKey),
-                        null)
+                    PublicKeyCredentialType.PUBLIC_KEY.toString(),
+                    Base64Utils.decode(allowedKey),
+                    null
+                )
                 descriptors.add(publicKeyCredentialDescriptor)
             }
             builder.setAllowList(descriptors)
@@ -304,14 +331,14 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
             result.addOnSuccessListener {
                 this.callback = callback
                 startIntentSenderForResult(
-                        activity,
-                        it.intentSender,
-                        REQUEST_CODE_SIGN,
-                        null,
-                        0,
-                        0,
-                        0,
-                        null
+                    activity,
+                    it.intentSender,
+                    REQUEST_CODE_SIGN,
+                    null,
+                    0,
+                    0,
+                    0,
+                    null
                 )
             }
         } catch (e: Throwable) {
@@ -321,8 +348,8 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
 
     private fun mapError(error: AuthenticatorErrorResponse) {
         this.callback?.invoke(
-                null,
-                PluginError(ErrorCase.ErrorResponse, error.errorMessage ?: "", null)
+            null,
+            PluginError(ErrorCase.ErrorResponse, error.errorMessage ?: "", null)
         )
     }
 
@@ -331,8 +358,8 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
         val attestationObject: String = Base64Utils.encode(response.attestationObject)
 
         val map = mutableMapOf<String, Any>(
-                "clientDataJSON" to clientDataJSON,
-                "attestationObject" to attestationObject
+            "clientDataJSON" to clientDataJSON,
+            "attestationObject" to attestationObject
         )
         this.callback?.invoke(map, null)
     }
@@ -344,10 +371,10 @@ class YubicoFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Plu
         val signature: String = Base64Utils.encode(response.signature)
 
         val map = mutableMapOf<String, Any>(
-                "authenticatorData" to authenticatorData,
-                "clientDataJSON" to clientDataJSON,
-                "id" to credentialId,
-                "signature" to signature
+            "authenticatorData" to authenticatorData,
+            "clientDataJSON" to clientDataJSON,
+            "id" to credentialId,
+            "signature" to signature
         )
         this.callback?.invoke(map, null)
     }

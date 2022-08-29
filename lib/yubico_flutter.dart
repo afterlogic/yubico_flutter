@@ -6,7 +6,7 @@ class FidoAuthRequest extends FidoRequest {
   final String domainUrl;
   final double timeout;
   final String challenge;
-  final String requestId;
+  final String? requestId;
   final String rpId;
   final List<String> credentials;
 
@@ -21,7 +21,7 @@ class FidoAuthRequest extends FidoRequest {
   ) : super(requestTimeout);
 
   @override
-  Future<Map<String, dynamic>> _request() {
+  Future<Map<String, dynamic>?> _request() {
     return _yubico.authRequest(
       domainUrl,
       timeout,
@@ -63,7 +63,7 @@ class FidoRegisterRequest extends FidoRequest {
   ) : super(requestTimeout);
 
   @override
-  Future<Map<String, dynamic>> _request() {
+  Future<Map<String, dynamic>?> _request() {
     return _yubico.registrationRequest(
       domainUrl,
       timeout,
@@ -86,16 +86,16 @@ class _YubicoFlutter {
   static const MethodChannel _channel = const MethodChannel('yubico_flutter');
 
   // ignore: close_sinks
-  final _ctrl = StreamController<KeyState>.broadcast();
-  KeyState keyState;
+  final _ctrl = StreamController<KeyState?>.broadcast();
+  KeyState? keyState;
 
-  Stream<KeyState> get onState => _ctrl.stream;
+  Stream<KeyState?> get onState => _ctrl.stream;
 
   // ignore: close_sinks
-  final _nfcCtrl = StreamController<KeyState>.broadcast();
-  KeyState nfcKeyState;
+  final _nfcCtrl = StreamController<KeyState?>.broadcast();
+  KeyState? nfcKeyState;
 
-  Stream<KeyState> get onNfcState => _nfcCtrl.stream;
+  Stream<KeyState?> get onNfcState => _nfcCtrl.stream;
 
   _YubicoFlutter._() {
     if (Platform.isIOS) {
@@ -145,22 +145,22 @@ class _YubicoFlutter {
     }
   }
 
-  Future<bool> supportNcf() {
+  Future<bool?> supportNcf() {
     if (Platform.isIOS) {
-      return _channel.invokeMethod("supportNcf");
+      return _channel.invokeMethod<bool>("supportNcf");
     } else {
       throw "not supported";
     }
   }
 
-  Future<Map<String, dynamic>> authRequest(
+  Future<Map<String, dynamic>?> authRequest(
     String domainUrl,
     double timeout,
     String challenge,
-    String requestId,
+    String? requestId,
     String rpId,
     List<String> credentials, {
-    bool nfc = false,
+    bool? nfc = false,
   }) async {
     try {
       final map = await _channel.invokeMapMethod("authRequest", [
@@ -176,22 +176,22 @@ class _YubicoFlutter {
       ]);
       print(map);
       if (Platform.isIOS) {
-        return Map.castFrom(map["attestation"] as Map);
+        return Map.castFrom(map?["attestation"] as Map);
       } else {
-        return map.cast();
+        return map?.cast();
       }
     } catch (e) {
       if (e is PlatformException) {
         final code = int.tryParse(e.code) ?? 0;
         final errorCase = FidoErrorCase.values[code];
-        throw FidoError(e.message, errorCase);
+        throw FidoError(e.message ?? '', errorCase);
       }
       print(e);
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>> registrationRequest(
+  Future<Map<String, dynamic>?> registrationRequest(
     String domainUrl,
     double timeout,
     String challenge,
@@ -203,7 +203,7 @@ class _YubicoFlutter {
     String displayName,
     List<Map<String, dynamic>> pubKeyCredParams,
     List<Map<String, dynamic>> allowCredentials, {
-    bool nfc = false,
+    bool? nfc = false,
   }) async {
     try {
       final map = await _channel.invokeMapMethod("registrationRequest", [
@@ -223,12 +223,12 @@ class _YubicoFlutter {
         }
       ]);
       print(map);
-      return map.cast();
+      return map?.cast();
     } catch (e) {
       if (e is PlatformException) {
         final code = int.tryParse(e.code) ?? 0;
         final errorCase = FidoErrorCase.values[code];
-        throw FidoError(e.message, errorCase);
+        throw FidoError(e.message ?? '', errorCase);
       }
       print(e);
       rethrow;
@@ -239,13 +239,13 @@ class _YubicoFlutter {
 abstract class FidoRequest extends Sink {
   final _yubico = _YubicoFlutter.instance;
   final Duration _requestTimeout;
-  bool _isNFC;
+  bool? _isNFC;
 
-  bool get isNFC => _isNFC;
+  bool? get isNFC => _isNFC;
 
   FidoRequest(this._requestTimeout);
 
-  Future<bool> waitConnection(String message, String success) async {
+  Future<bool?> waitConnection(String message, String success) async {
     if (Platform.isIOS) {
       _yubico.startSession();
       await Future.delayed(Duration(milliseconds: 300));
@@ -274,7 +274,7 @@ abstract class FidoRequest extends Sink {
         }
       }
       _isNFC = await completer.future.timeout(_requestTimeout);
-      if (_isNFC) {
+      if (_isNFC == true) {
         _YubicoFlutter.instance.stopSession();
       } else {
         _YubicoFlutter.instance.stopNfcSession();
@@ -285,7 +285,7 @@ abstract class FidoRequest extends Sink {
     }
   }
 
-  Future<Map<String, dynamic>> start() async {
+  Future<Map<String, dynamic>?> start() async {
     try {
       final result = await _request();
       return result;
@@ -296,7 +296,7 @@ abstract class FidoRequest extends Sink {
     }
   }
 
-  Future<Map<String, dynamic>> _request();
+  Future<Map<String, dynamic>?> _request();
 
   @override
   void add(data) {}
@@ -312,7 +312,7 @@ abstract class FidoRequest extends Sink {
 
 class CanceledByUser extends Error {}
 
-KeyState _toKeyState(int code) {
+KeyState? _toKeyState(int code) {
   switch (code) {
     case 0:
       return KeyState.CLOSED;
@@ -329,7 +329,7 @@ KeyState _toKeyState(int code) {
   return null;
 }
 
-KeyState _toNfcKeyState(int code) {
+KeyState? _toNfcKeyState(int code) {
   switch (code) {
     case 0:
       return KeyState.CLOSED;
